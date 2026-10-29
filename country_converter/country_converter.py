@@ -432,7 +432,11 @@ class CountryConverter:
                     encoding="utf-8",
                     converters=dict.fromkeys(must_be_string, str),
                     na_values=accepted_na_values,
+                    keep_default_na=False,
                 )
+                # pandas >= 3.1 applies na_values to converter columns too (pandas-dev/pandas#68689)
+                string_columns = [col for col in must_be_string if col in ret.columns]
+                ret[string_columns] = ret[string_columns].fillna("")
                 ret = ret.astype({col: "Int64" for col in ret.columns if col in must_be_int})
                 test_for_unique_names(ret, data)
             return ret
